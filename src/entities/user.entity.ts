@@ -1,19 +1,55 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Task } from './task.entity';
+import { EUserRole } from 'src/types/enum';
+import { BoardRole } from './board_role.entity';
+import { Comment } from './comment.entity';
+import { Notification } from './notification.entity';
 
-@Entity()
+@Entity('user')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column()
-  firstName: string;
+  @Column({ type: 'varchar', length: 20 })
+  username: string;
 
-  @Column()
-  lastName: string;
-
-  @Column()
+  @Column({ type: 'varchar', length: 50 })
   email: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 20 })
   password: string;
+
+  @Column({ type: 'varchar', length: 225, nullable: true })
+  avatar: string;
+
+  @Column({ type: 'enum', enum: EUserRole, default: EUserRole.user })
+  role: EUserRole;
+
+  @OneToMany(() => Task, (task) => task.creator)
+  createdTasks: Task[];
+
+  @OneToMany(() => Task, (task) => task.assignee)
+  assignedTasks: Task[];
+
+  @OneToMany(() => BoardRole, (boardRole) => boardRole.user)
+  boardRoles: BoardRole[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
 }
