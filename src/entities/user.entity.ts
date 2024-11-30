@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Task } from './task.entity';
-import { EUserRole } from 'src/types/enum';
+import { EUserRole } from 'src/common/types/enum';
 import { BoardRole } from './board_role.entity';
 import { Comment } from './comment.entity';
 import { Notification } from './notification.entity';

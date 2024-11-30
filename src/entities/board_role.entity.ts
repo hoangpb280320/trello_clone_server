@@ -7,7 +7,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { EBroadRole } from 'src/types/enum';
+import { EBroadRole } from 'src/common/types/enum';
 import { User } from './user.entity';
 import { Board } from './board.entity';
 

@@ -9,7 +9,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
-import { EEtaskPriority, ETaskStatus } from 'src/types/enum';
+import { EEtaskPriority, ETaskStatus } from 'src/common/types/enum';
 import { Comment } from './comment.entity';
 import { List } from './list.entity';
 

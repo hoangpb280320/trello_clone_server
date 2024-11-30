@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { List } from './list.entity';
-import { EBoardTheme } from 'src/types/enum';
+import { EBoardTheme } from 'src/common/types/enum';
 import { BoardRole } from './board_role.entity';
 
 @Entity('board')
