@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities';
 import { UserRepository } from 'src/repositories';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthTokenRepository } from 'src/repositories/AuthToken.repository';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserRepository],
+  providers: [AuthService, UserRepository, AuthTokenRepository],
 })
 export class AuthModule {}

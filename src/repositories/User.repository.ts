@@ -9,6 +9,10 @@ export class UserRepository extends BaseRepository<User> {
     super(User, dataSource);
   }
 
+  async findById(userId: string): Promise<User | null> {
+    return this.findOneEntity({ where: { id: userId } });
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.findOneEntity({ where: { email } });
   }
