@@ -14,6 +14,7 @@ import { ApiResponse, Token } from 'src/common/types';
 import { LoginTdo, RegisterTdo } from './dto';
 import { AuthTokenRepository } from 'src/repositories/AuthToken.repository';
 import { User } from 'src/entities';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
@@ -38,9 +39,9 @@ export class AuthService {
         password: hassPassword,
       });
 
-      const payload = { email: newUser.email, id: newUser.username };
-      const accessToken = await this.generateAccessToken(payload);
-      const refreshToken = await this.generateRefreshToken(payload);
+      const payload = { id: newUser.id };
+      const accessToken = this.generateAccessToken(payload);
+      const refreshToken = this.generateRefreshToken(payload);
 
       await this.saveAuthToken(newUser, refreshToken, accessToken);
 
@@ -75,11 +76,13 @@ export class AuthService {
         throw new UnauthorizedException(ErrMessage.passwordNotMatch);
       }
 
-      const payload = { email: user.email, id: user.username };
-      const accessToken = await this.generateAccessToken(payload);
-      const refreshToken = await this.generateRefreshToken(payload);
+      const payload = { id: user.id };
+      const accessToken = this.generateAccessToken(payload);
+      const refreshToken = this.generateRefreshToken(payload);
 
       await this.saveAuthToken(user, refreshToken, accessToken);
+
+      // this.saveRefreshTokenToCookie(refreshToken, res);
 
       return {
         statusCode: HttpStatus.OK,
@@ -113,18 +116,36 @@ export class AuthService {
     }
   }
 
+  // async refreshToken({accessToken, refreshToken}:{refreshToken: string, accessToken: string}): Promise<ApiResponse<Token>> {
+  //   try {
+  //     const payload = await this.verifyToken(refreshToken);
+  //     if (!payload) {
+  //       throw new UnauthorizedException(ErrMessage.tokenInvalid);
+  //     }
+  //     this.
+  //   } catch (error) {
+  //     handleException(error);
+  //   }
+  // }
+
+  async verifyToken(token: string) {
+    return await this.jwtService.verify(token, {
+      secret: process.env.JWT_REFRESH_SECRET,
+    });
+  }
+
   async isMatchPassword(password: string, hashPassword: string) {
     return await bcrypt.compare(password, hashPassword);
   }
 
-  async generateAccessToken(payload: any): Promise<string> {
+  generateAccessToken(payload: any): string {
     return this.jwtService.sign(payload, {
       expiresIn: process.env.JWT_ACCESS_EXPIRATION,
       secret: process.env.JWT_SECRET,
     });
   }
 
-  async generateRefreshToken(payload: any): Promise<string> {
+  generateRefreshToken(payload: any): string {
     return this.jwtService.sign(payload, {
       expiresIn: process.env.JWT_REFRESH_EXPIRATION,
       secret: process.env.JWT_REFRESH_SECRET,
@@ -132,10 +153,29 @@ export class AuthService {
   }
 
   async saveAuthToken(user: User, refreshToken: string, accessToken: string) {
-    await this.authTokenRepository.createEntity({
-      user,
-      refreshToken,
-      accessToken,
+    try {
+      const authToken = await this.authTokenRepository.findById(user.id);
+      if (authToken) {
+        await this.authTokenRepository.updateEntity(authToken.id, {
+          refreshToken,
+          accessToken,
+        });
+      }
+      await this.authTokenRepository.createEntity({
+        user,
+        refreshToken,
+        accessToken,
+      });
+    } catch (error) {
+      handleException(error);
+    }
+  }
+
+  saveRefreshTokenToCookie(token: string, res: Response) {
+    res.cookie('refresh-token', token, {
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
   }
 }
