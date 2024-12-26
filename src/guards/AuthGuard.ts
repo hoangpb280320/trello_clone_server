@@ -3,11 +3,11 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { ErrMessage } from 'src/common/message';
-import { handleException } from 'src/untils';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -25,10 +25,11 @@ export class AuthGuard implements CanActivate {
       const payload = this.jwtService.verify(token, {
         secret: process.env.JWT_SECRET,
       });
-      console.log(payload);
-      request['user'] = payload;
+
+      request['userId'] = payload.id;
+      request['token'] = token;
     } catch (error) {
-      handleException(error);
+      throw new InternalServerErrorException(error.message);
     }
 
     return true;

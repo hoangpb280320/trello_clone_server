@@ -5,4 +5,5 @@ export const ErrMessage = {
   userNotExist: 'User does not exist',
   userNotActive: 'User is not active',
   tokenInvalid: 'Token is invalid',
+  tokenExpired: 'Token is expired',
 };

@@ -1,33 +1,26 @@
-import { Controller, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterTdo } from './dto';
 import { LoginTdo } from './dto/login.dto';
-import { AuthGuard } from 'src/guards/AuthGuard';
+import { Request, Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/register')
-  create(@Body() data: RegisterTdo) {
-    return this.authService.register(data);
+  create(@Body() data: RegisterTdo, @Res({ passthrough: true }) res: Response) {
+    return this.authService.register({ data, res });
   }
 
   @Post('/login')
-  login(@Body() data: LoginTdo) {
-    return this.authService.login(data);
+  login(@Body() data: LoginTdo, @Res({ passthrough: true }) res: Response) {
+    return this.authService.login({ data, res });
   }
 
-  @UseGuards(AuthGuard)
-  @Post('/logout/:id')
-  logout(@Param('id') userId: string) {
-    return this.authService.logout(userId);
+  @Post('/refesh-token')
+  refreshToken(@Req() req: Request) {
+    const refreshToken = req.cookies['refresh_token'] || null;
+    return this.authService.refreshToken(refreshToken);
   }
-
-  // @Post('/refesh-token')
-  // refreshToken(@Req() req: Request) {
-  //   const accessToken = req['token'];
-  //   const refreshToken = req.cookies['refresh-token'];
-  //   return this.authService.refreshToken({ accessToken, refreshToken });
-  // }
 }
