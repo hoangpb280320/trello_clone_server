@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterTdo } from './dto';
+import { LoginWithGoogleTdo, RegisterTdo } from './dto';
 import { LoginTdo } from './dto/login.dto';
 import { Request, Response } from 'express';
 
@@ -11,6 +11,12 @@ export class AuthController {
   @Post('/register')
   create(@Body() data: RegisterTdo, @Res({ passthrough: true }) res: Response) {
     return this.authService.register({ data, res });
+  }
+
+  @Post('google/login')
+  loginWithGoogle(@Body() data: LoginWithGoogleTdo) {
+    console.log('check12 code', data);
+    return { code: data.code };
   }
 
   @Post('/login')
