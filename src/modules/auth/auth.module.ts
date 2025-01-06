@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities';
 import { UserRepository } from 'src/repositories';
 import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './google.stratery';
+import { OAuth2Client } from 'google-auth-library';
 
 @Module({
   imports: [
@@ -14,9 +14,21 @@ import { GoogleStrategy } from './google.stratery';
     JwtModule.register({
       secret: process.env.JWT_SECRET,
     }),
-    PassportModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserRepository, GoogleStrategy],
+  providers: [
+    AuthService,
+    UserRepository,
+    GoogleStrategy,
+    {
+      provide: OAuth2Client,
+      useFactory: () => {
+        return new OAuth2Client(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET,
+        );
+      },
+    },
+  ],
 })
 export class AuthModule {}

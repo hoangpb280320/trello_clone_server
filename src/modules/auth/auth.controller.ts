@@ -14,9 +14,11 @@ export class AuthController {
   }
 
   @Post('google/login')
-  loginWithGoogle(@Body() data: LoginWithGoogleTdo) {
-    console.log('check12 code', data);
-    return { code: data.code };
+  loginWithGoogle(
+    @Body() data: LoginWithGoogleTdo,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.loginWithGoogle(data.code, res);
   }
 
   @Post('/login')

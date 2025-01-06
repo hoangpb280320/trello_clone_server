@@ -12,13 +12,22 @@ import { JwtService } from '@nestjs/jwt';
 import { ApiResponse, Token } from 'src/common/types';
 import { LoginTdo, RegisterTdo } from './dto';
 import { Response } from 'express';
+import { OAuth2Client } from 'google-auth-library';
+import { ggAuthApi } from 'src/common/constant';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
-  ) {}
+    private oauthClient: OAuth2Client,
+  ) {
+    this.oauthClient = new OAuth2Client(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+    );
+  }
 
   async register({
     data,
@@ -41,19 +50,12 @@ export class AuthService {
         password: hassPassword,
       });
 
-      const payload = { id: newUser.id };
-      const accessToken = this.generateAccessToken(payload);
-      const refreshToken = this.generateRefreshToken(payload);
-
-      this.saveRefreshTokenToCookie(refreshToken, res);
+      const tokens = this.generateToken(newUser.id, res);
 
       return {
         statusCode: HttpStatus.CREATED,
         message: SuccessMessage.registerSuccess,
-        data: {
-          accessToken,
-          refreshToken,
-        },
+        data: tokens,
       };
     } catch (error) {
       handleException(error);
@@ -84,20 +86,64 @@ export class AuthService {
         throw new UnauthorizedException(ErrMessage.passwordNotMatch);
       }
 
-      const payload = { id: user.id };
-      const accessToken = this.generateAccessToken(payload);
-      const refreshToken = this.generateRefreshToken(payload);
-
-      this.saveRefreshTokenToCookie(refreshToken, res);
+      const tokens = this.generateToken(user.id, res);
 
       return {
         statusCode: HttpStatus.OK,
         message: SuccessMessage.loginSuccess,
-        data: {
-          accessToken,
-          refreshToken,
-        },
+        data: tokens,
       };
+    } catch (error) {
+      handleException(error);
+    }
+  }
+
+  async loginWithGoogle(
+    code: string,
+    res: Response,
+  ): Promise<ApiResponse<Token>> {
+    try {
+      const idToken = await this.getIdToken(code);
+      const tokenResponse = await this.oauthClient.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const { email, name, picture } = tokenResponse.getPayload();
+      const user = await this.userRepository.findByEmail(email);
+      if (!user) {
+        const newUser = await this.userRepository.createEntity({
+          email,
+          username: name,
+          avatar: picture,
+        });
+        const data = this.generateToken(newUser.id, res);
+        return {
+          statusCode: HttpStatus.OK,
+          data,
+        };
+      }
+
+      const data = this.generateToken(user.id, res);
+      return {
+        statusCode: HttpStatus.OK,
+        data,
+      };
+    } catch (error) {
+      handleException(error);
+    }
+  }
+
+  async getIdToken(code: string): Promise<string> {
+    try {
+      const res = await axios.post(ggAuthApi, {
+        code,
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+        grant_type: 'authorization_code',
+      });
+      const idToken: string = res.data['id_token'];
+      return idToken;
     } catch (error) {
       handleException(error);
     }
@@ -142,6 +188,14 @@ export class AuthService {
       expiresIn: process.env.JWT_REFRESH_EXPIRATION,
       secret: process.env.JWT_REFRESH_SECRET,
     });
+  }
+
+  generateToken(userId: string, res: Response): Token {
+    const payload = { id: userId };
+    const accessToken = this.generateAccessToken(payload);
+    const refreshToken = this.generateRefreshToken(payload);
+    this.saveRefreshTokenToCookie(refreshToken, res);
+    return { accessToken, refreshToken };
   }
 
   saveRefreshTokenToCookie(token: string, res: Response) {
