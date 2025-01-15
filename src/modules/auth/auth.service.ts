@@ -9,12 +9,13 @@ import { ErrMessage, SuccessMessage } from 'src/common/message';
 import { handleException } from 'src/untils';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { ApiResponse, Token } from 'src/common/types';
+import { ApiResponse, LoginResponse, Token } from 'src/common/types';
 import { LoginTdo, RegisterTdo } from './dto';
 import { Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import { ggAuthApi } from 'src/common/constant';
 import axios from 'axios';
+import { User } from 'src/entities';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,7 @@ export class AuthService {
   }: {
     data: RegisterTdo;
     res: Response;
-  }): Promise<ApiResponse<Token>> {
+  }): Promise<ApiResponse<LoginResponse>> {
     try {
       const { email, password } = data;
 
@@ -50,12 +51,12 @@ export class AuthService {
         password: hassPassword,
       });
 
-      const tokens = this.generateToken(newUser.id, res);
+      const loginResponse = this.loginResponse(newUser, res);
 
       return {
         statusCode: HttpStatus.CREATED,
         message: SuccessMessage.registerSuccess,
-        data: tokens,
+        data: loginResponse,
       };
     } catch (error) {
       handleException(error);
@@ -73,7 +74,7 @@ export class AuthService {
   }: {
     data: LoginTdo;
     res: Response;
-  }): Promise<ApiResponse<Token>> {
+  }): Promise<ApiResponse<LoginResponse>> {
     try {
       const { email, password } = data;
       const user = await this.userRepository.findByEmail(email);
@@ -86,12 +87,12 @@ export class AuthService {
         throw new UnauthorizedException(ErrMessage.passwordNotMatch);
       }
 
-      const tokens = this.generateToken(user.id, res);
+      const loginResponse = this.loginResponse(user, res);
 
       return {
         statusCode: HttpStatus.OK,
         message: SuccessMessage.loginSuccess,
-        data: tokens,
+        data: loginResponse,
       };
     } catch (error) {
       handleException(error);
@@ -101,7 +102,7 @@ export class AuthService {
   async loginWithGoogle(
     code: string,
     res: Response,
-  ): Promise<ApiResponse<Token>> {
+  ): Promise<ApiResponse<LoginResponse>> {
     try {
       const idToken = await this.getIdToken(code);
       const tokenResponse = await this.oauthClient.verifyIdToken({
@@ -116,17 +117,17 @@ export class AuthService {
           username: name,
           avatar: picture,
         });
-        const data = this.generateToken(newUser.id, res);
+        const loginResponse = this.loginResponse(newUser, res);
         return {
           statusCode: HttpStatus.OK,
-          data,
+          data: loginResponse,
         };
       }
 
-      const data = this.generateToken(user.id, res);
+      const loginResponse = this.loginResponse(user, res);
       return {
         statusCode: HttpStatus.OK,
-        data,
+        data: loginResponse,
       };
     } catch (error) {
       handleException(error);
@@ -190,12 +191,20 @@ export class AuthService {
     });
   }
 
-  generateToken(userId: string, res: Response): Token {
-    const payload = { id: userId };
+  loginResponse(user: User, res: Response): LoginResponse {
+    const payload = { id: user.id };
     const accessToken = this.generateAccessToken(payload);
     const refreshToken = this.generateRefreshToken(payload);
     this.saveRefreshTokenToCookie(refreshToken, res);
-    return { accessToken, refreshToken };
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        avatar: user.avatar,
+      },
+      token: accessToken,
+    };
   }
 
   saveRefreshTokenToCookie(token: string, res: Response) {
