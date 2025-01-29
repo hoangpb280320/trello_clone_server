@@ -1,4 +1,4 @@
-import { User } from 'src/entities';
+import { Board, User } from 'src/entities';
 
 export interface ApiResponse<T = undefined> {
   statusCode: number;
@@ -14,4 +14,12 @@ export interface Token {
 export interface LoginResponse {
   token: string;
   user: Partial<User>;
+}
+
+export interface BoardResponse {
+  board: Partial<Board>;
+}
+
+export interface BoardsResponse {
+  boards: Board[];
 }

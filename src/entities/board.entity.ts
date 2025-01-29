@@ -7,7 +7,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { List } from './list.entity';
-import { EBoardTheme } from 'src/common/types/enum';
 import { BoardRole } from './board_role.entity';
 
 @Entity('board')
@@ -21,8 +20,8 @@ export class Board {
   @Column({ type: 'timestamp', nullable: true })
   deadline: Date;
 
-  @Column({ type: 'enum', enum: EBoardTheme, default: EBoardTheme.dark })
-  theme: EBoardTheme;
+  @Column({ type: 'varchar', length: 500, default: 'bg-1' })
+  background: string;
 
   @OneToMany(() => List, (list) => list.board, { onDelete: 'CASCADE' })
   lists: List[];

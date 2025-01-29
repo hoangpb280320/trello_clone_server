@@ -3,11 +3,6 @@ export enum EUserRole {
   user = 'user',
 }
 
-export enum EBoardTheme {
-  dark = 'dark',
-  light = 'light',
-}
-
 export enum EEtaskPriority {
   low = 1,
   medium = 2,

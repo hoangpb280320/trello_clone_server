@@ -16,9 +16,15 @@ export class BoardRole {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
+  @Column({ name: 'board_id' })
+  boardId: number;
+
   @ManyToOne(() => Board, (board) => board.roles)
   @JoinColumn({ name: 'board_id' })
   board: Board;
+
+  @Column({ name: 'user_id' })
+  userId: string;
 
   @ManyToOne(() => User, (user) => user.boardRoles)
   @JoinColumn({ name: 'user_id' })
