@@ -4,4 +4,7 @@ export const SuccessMessage = {
   createBoardSuccess: 'Create board successfully',
   updateBoardSuccess: 'Update board successfully',
   deleteBoardSuccess: 'Delete board successfully',
+  createBackgroundSuccess: 'Create background successfully',
+  updateBackgroundSuccess: 'Update background successfully',
+  deleteBackgroundSuccess: 'Delete background successfully',
 };

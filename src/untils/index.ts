@@ -1,3 +1,2 @@
-import { handleException } from './handleException';
-
-export { handleException };
+export * from './handleException';
+export * from './handlePublicId';

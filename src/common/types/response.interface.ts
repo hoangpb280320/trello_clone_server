@@ -1,4 +1,5 @@
 import { Board, User } from 'src/entities';
+import { Background } from 'src/entities/background.entity';
 
 export interface ApiResponse<T = undefined> {
   statusCode: number;
@@ -22,4 +23,12 @@ export interface BoardResponse {
 
 export interface BoardsResponse {
   boards: Board[];
+}
+
+export interface BackgroundResponse {
+  background: Background;
+}
+
+export interface BackgroundsResponse {
+  backgrounds: Background[];
 }

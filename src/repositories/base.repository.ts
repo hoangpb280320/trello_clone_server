@@ -6,8 +6,6 @@ import {
   FindOneOptions,
   Repository,
 } from 'typeorm';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { UpdateResult } from 'typeorm/query-builder/result/UpdateResult';
 
 @Injectable()
 export class BaseRepository<T> extends Repository<T> {
@@ -31,11 +29,9 @@ export class BaseRepository<T> extends Repository<T> {
     return await this.find(options);
   }
 
-  async updateEntity(
-    id: string | number,
-    data: QueryDeepPartialEntity<T>,
-  ): Promise<UpdateResult> {
-    return await this.update(id, data);
+  async updateEntity(id: string | number, data: DeepPartial<T>): Promise<T> {
+    const updatedEntity = await this.preload({ id, ...data });
+    return await this.save(updatedEntity);
   }
 
   async deleteEntity(id: string | number): Promise<void> {

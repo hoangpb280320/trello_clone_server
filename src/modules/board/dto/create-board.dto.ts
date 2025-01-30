@@ -15,5 +15,5 @@ export class CreateBoardDto {
 
   @IsOptional()
   @IsString()
-  background: string;
+  backgroundId: string;
 }

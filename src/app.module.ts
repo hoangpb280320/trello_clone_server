@@ -9,6 +9,8 @@ import { ListModule } from './modules/list/list.module';
 import { TaskModule } from './modules/task/task.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { BackgroundModule } from './modules/background/background.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { CommentModule } from './modules/comment/comment.module';
     TaskModule,
     NotificationModule,
     CommentModule,
+    BackgroundModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

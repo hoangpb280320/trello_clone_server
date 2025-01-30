@@ -10,6 +10,7 @@ import {
   Task,
   User,
 } from './entities';
+import { Background } from './entities/background.entity';
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ export const AppDataSource = new DataSource({
     Notification,
     BoardRole,
     AuthToken,
+    Background,
   ],
   migrations: ['dist/migrations/*.js'],
   synchronize: false,

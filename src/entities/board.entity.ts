@@ -5,9 +5,12 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { List } from './list.entity';
 import { BoardRole } from './board_role.entity';
+import { Background } from './background.entity';
 
 @Entity('board')
 export class Board {
@@ -20,8 +23,12 @@ export class Board {
   @Column({ type: 'timestamp', nullable: true })
   deadline: Date;
 
-  @Column({ type: 'varchar', length: 500, default: 'bg-1' })
-  background: string;
+  @Column({ name: 'background_id', nullable: true })
+  backgroundId: string;
+
+  @ManyToOne(() => Background, (background) => background.boards)
+  @JoinColumn({ name: 'background_id' })
+  background: Background;
 
   @OneToMany(() => List, (list) => list.board, { onDelete: 'CASCADE' })
   lists: List[];
@@ -29,9 +36,9 @@ export class Board {
   @OneToMany(() => BoardRole, (boardRole) => boardRole.board)
   roles: BoardRole[];
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 }
