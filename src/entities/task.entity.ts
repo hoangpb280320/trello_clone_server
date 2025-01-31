@@ -24,13 +24,22 @@ export class Task {
   @Column({ type: 'varchar', length: '500', nullable: true })
   description: string;
 
+  @Column({ name: 'creator_id' })
+  creatorId: string;
+
   @ManyToOne(() => User, (user) => user.createdTasks)
-  @JoinColumn({ name: 'creator' })
+  @JoinColumn({ name: 'creator_id' })
   creator: User;
 
+  @Column({ name: 'assignee_id', nullable: true })
+  assigneeId: string;
+
   @ManyToOne(() => User, (user) => user.assignedTasks, { nullable: true })
-  @JoinColumn({ name: 'assignee' })
+  @JoinColumn({ name: 'assignee_id' })
   assignee: User;
+
+  @Column({ name: 'list_id' })
+  listId: number;
 
   @ManyToOne(() => User, (user) => user.createdTasks)
   @JoinColumn({ name: 'list_id' })

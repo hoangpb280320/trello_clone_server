@@ -25,6 +25,9 @@ export class List {
   @Column({ type: 'bool', default: false })
   is_done: boolean;
 
+  @Column({ name: 'board_id' })
+  boardId: number;
+
   @ManyToOne(() => Board, (board) => board.lists)
   @JoinColumn({ name: 'board_id' })
   board: Board;

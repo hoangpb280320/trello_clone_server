@@ -20,6 +20,9 @@ export class Notification {
   @Column({ type: 'bool', default: false, name: 'is_read' })
   isRead: boolean;
 
+  @Column({ name: 'user_id' })
+  userId: string;
+
   @ManyToOne(() => User, (user) => user.notifications)
   @JoinColumn({ name: 'user_id' })
   user: User;

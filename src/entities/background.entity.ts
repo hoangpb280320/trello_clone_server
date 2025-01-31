@@ -6,6 +6,7 @@ import {
   PrimaryColumn,
   OneToMany,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Board } from './board.entity';
 import { User } from './user.entity';
@@ -27,7 +28,8 @@ export class Background {
   @Column({ name: 'user_id', nullable: true })
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.backgrounds)
+  @ManyToOne(() => User, (user) => user.backgrounds, { nullable: true })
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @OneToMany(() => Board, (board) => board.background)
