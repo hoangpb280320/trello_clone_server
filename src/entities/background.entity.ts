@@ -5,8 +5,10 @@ import {
   UpdateDateColumn,
   PrimaryColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { Board } from './board.entity';
+import { User } from './user.entity';
 
 @Entity('background')
 export class Background {
@@ -18,6 +20,15 @@ export class Background {
 
   @Column({ type: 'varchar', length: 100 })
   image: string;
+
+  @Column({ type: 'bool', default: false, name: 'is_default' })
+  isDefault: boolean;
+
+  @Column({ name: 'user_id', nullable: true })
+  userId: string;
+
+  @ManyToOne(() => User, (user) => user.backgrounds)
+  user: User;
 
   @OneToMany(() => Board, (board) => board.background)
   boards: Board[];

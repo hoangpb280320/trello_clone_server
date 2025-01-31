@@ -9,12 +9,7 @@ import { GoogleStrategy } from './google.stratery';
 import { OAuth2Client } from 'google-auth-library';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-    }),
-  ],
+  imports: [TypeOrmModule.forFeature([User]), JwtModule],
   controllers: [AuthController],
   providers: [
     AuthService,

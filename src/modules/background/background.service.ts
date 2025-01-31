@@ -69,6 +69,21 @@ export class BackgroundService {
     }
   }
 
+  async findAllByUserId(
+    userId: string,
+  ): Promise<ApiResponse<BackgroundsResponse>> {
+    try {
+      const backgrounds =
+        await this.backgroundRepository.findAllByUserId(userId);
+      return {
+        statusCode: HttpStatus.OK,
+        data: { backgrounds },
+      };
+    } catch (error) {
+      handleException(error);
+    }
+  }
+
   async update(
     id: string,
     data: UpdateBackgroundDto,

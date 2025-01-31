@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -14,6 +16,8 @@ import { multerOptions } from 'src/configs/multer.config';
 import { CreateBackgroundDto } from './dto/createBackground.dto';
 import { BackgroundService } from './background.service';
 import { UpdateBackgroundDto } from './dto/updateBackground.dto';
+import { AuthGuard } from 'src/guards/AuthGuard';
+import { Request } from 'express';
 
 @Controller('background')
 export class BackgroundController {
@@ -31,6 +35,13 @@ export class BackgroundController {
   @Get()
   getAll() {
     return this.backgroundService.findAll();
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/defaults')
+  getAllDefaults(@Req() req: Request) {
+    const userId = req['userId'];
+    return this.backgroundService.findAllByUserId(userId);
   }
 
   @Patch(':id')

@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
 import { BoardRepository } from 'src/repositories';
 import { generateId, handleException } from 'src/untils';
 import {
@@ -80,12 +79,41 @@ export class BoardService {
     }
   }
 
-  async update(
+  async updateTitle(
     id: number,
-    data: UpdateBoardDto,
+    title: string,
   ): Promise<ApiResponse<BoardResponse>> {
     try {
-      const board = await this.boardRepository.updateEntity(id, data);
+      const board = await this.boardRepository.updateEntity(id, { title });
+      return {
+        statusCode: HttpStatus.OK,
+        message: SuccessMessage.updateBoardSuccess,
+        data: { board },
+      };
+    } catch (error) {
+      handleException(error);
+    }
+  }
+
+  async updateBackground(
+    id: number,
+    backgroundId?: string,
+    file?: Express.Multer.File,
+  ) {
+    try {
+      let updateBackgroundId: string | null = null;
+      if (backgroundId) {
+        updateBackgroundId = backgroundId;
+      } else if (!backgroundId && file) {
+        const { public_id } = await this.cloudinaryService.uploadImage(
+          file,
+          this.folder,
+        );
+        updateBackgroundId = generateId(public_id);
+      }
+      const board = await this.boardRepository.updateEntity(id, {
+        backgroundId: updateBackgroundId,
+      });
       return {
         statusCode: HttpStatus.OK,
         message: SuccessMessage.updateBoardSuccess,

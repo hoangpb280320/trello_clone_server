@@ -12,4 +12,8 @@ export class BackgroundRepository extends BaseRepository<Background> {
   async findById(id: string): Promise<Background | null> {
     return this.findOneEntity({ where: { id } });
   }
+
+  async findAllByUserId(userId: string): Promise<Background[]> {
+    return this.findAllEntities({ where: [{ userId }, { isDefault: true }] });
+  }
 }

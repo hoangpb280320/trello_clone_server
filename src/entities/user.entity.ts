@@ -11,6 +11,7 @@ import { EUserRole } from 'src/common/types/enum';
 import { BoardRole } from './board_role.entity';
 import { Comment } from './comment.entity';
 import { Notification } from './notification.entity';
+import { Background } from './background.entity';
 
 @Entity('user')
 export class User {
@@ -46,6 +47,9 @@ export class User {
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
+
+  @OneToMany(() => Background, (background) => background.user)
+  backgrounds: Background[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

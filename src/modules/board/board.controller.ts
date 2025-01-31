@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
 import { Request } from 'express';
 import { AuthGuard } from 'src/guards/AuthGuard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -49,8 +48,19 @@ export class BoardController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() data: UpdateBoardDto) {
-    return this.boardService.update(+id, data);
+  updateTitle(@Param('id') id: string, @Body() { title }: { title: string }) {
+    return this.boardService.updateTitle(+id, title);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  updateBackground(
+    @Param('id') id: string,
+    @Body() { backgroundId }: { backgroundId: string },
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return this.boardService.updateBackground(+id, backgroundId, file);
   }
 
   @UseGuards(AuthGuard)
